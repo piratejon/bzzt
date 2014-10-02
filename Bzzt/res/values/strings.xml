@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Bzzt</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="recording">Recording</string>
+    <string name="accel_x">X:</string>
+    <string name="accel_Y">Y:</string>
+    <string name="accel_Z">Z:</string>
+    <string name="gps_lat">Lat:</string>
+    <string name="gps_long">Long:</string>
+
+</resources>
