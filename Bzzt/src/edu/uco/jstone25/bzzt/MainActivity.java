@@ -6,9 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-
-// import com.noneuclideantriangles.bzzt.R;
-
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.Sensor;
