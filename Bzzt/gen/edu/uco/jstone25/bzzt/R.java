@@ -14,17 +14,6 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int textView1=0x7f060001;
-        public static final int textViewLatLabel=0x7f060005;
-        public static final int textViewLatValue=0x7f06000a;
-        public static final int textViewLongLabel=0x7f060006;
-        public static final int textViewLongValue=0x7f06000b;
-        public static final int textViewXLabel=0x7f060002;
-        public static final int textViewXValue=0x7f060007;
-        public static final int textViewYLabel=0x7f060003;
-        public static final int textViewYValue=0x7f060008;
-        public static final int textViewZLabel=0x7f060004;
-        public static final int textViewZValue=0x7f060009;
         public static final int toggleButtonRecording=0x7f060000;
     }
     public static final class layout {
@@ -38,6 +27,7 @@ public final class R {
         public static final int gps_lat=0x7f040006;
         public static final int gps_long=0x7f040007;
         public static final int hello_world=0x7f040001;
+        public static final int off=0x7f040008;
         public static final int recording=0x7f040002;
     }
     public static final class style {

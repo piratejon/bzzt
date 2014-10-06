@@ -9,5 +9,6 @@
     <string name="accel_Z">Z:</string>
     <string name="gps_lat">Lat:</string>
     <string name="gps_long">Long:</string>
+    <string name="off">Off</string>
 
 </resources>
