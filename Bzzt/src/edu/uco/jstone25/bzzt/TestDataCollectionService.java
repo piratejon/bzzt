@@ -10,10 +10,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
-public class DataCollectionService extends Service {
+public class TestDataCollectionService extends Service {
 	
-	AccelerometerSource as;
-	GPSSource gs;
+	TestAccelerometerSource as;
+	TestGPSSource gs;
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -25,8 +25,8 @@ public class DataCollectionService extends Service {
 		// TODO Auto-generated constructor stub
 		Log.d("DCS SVC", "onCreate");
 		try {
-			as = new AccelerometerSource(this.getApplicationContext());
-			gs = new GPSSource(this.getApplicationContext(), this);
+			as = new TestAccelerometerSource(this.getApplicationContext());
+			gs = new TestGPSSource(this.getApplicationContext(), this);
 		} catch (IOException e) {
 			// don't start the sensors if the constructors couldn't open the output files
 			Toast.makeText(getApplicationContext(), "Unable to start service" + e.toString(), Toast.LENGTH_LONG).show();

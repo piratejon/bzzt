@@ -8,7 +8,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-public class AccelerometerSource implements SensorEventListener {
+public class TestAccelerometerSource implements SensorEventListener {
 
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
@@ -31,7 +31,7 @@ public class AccelerometerSource implements SensorEventListener {
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 	}
 
-	public AccelerometerSource(Context context) throws IOException {
+	public TestAccelerometerSource(Context context) throws IOException {
 		mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
 		mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		lf = new LogFile("bzzt-accelerometer-");
