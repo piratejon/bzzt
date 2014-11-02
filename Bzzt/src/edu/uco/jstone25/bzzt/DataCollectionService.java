@@ -37,7 +37,7 @@ public class DataCollectionService extends Service {
 		as.start();
 		gs.start();
 
-		Toast.makeText(getApplicationContext(), "Seems like it started?", Toast.LENGTH_SHORT).show();
+		Toast.makeText(getApplicationContext(), "Seems like it may have?", Toast.LENGTH_SHORT).show();
 	}
 	
 	@Override
@@ -49,7 +49,6 @@ public class DataCollectionService extends Service {
 	}
 
 	public void updateCurrentLocation(Location location) {
-		Log.d("DCS", "Trying to Broadcast Location");
 		Intent i = new Intent(MainActivity.UPDATE_CURRENT_LOCATION);
 		i.putExtra("location", location);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(i);
