@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
 
 import android.content.Context;
 import android.location.Location;
@@ -65,7 +67,7 @@ public class TestGPSSource {
 	
 	ArrayList<SpaceTimeCoordinate> populateCoords(Context ctx, String fileName) {
 		ArrayList<SpaceTimeCoordinate> coords = new ArrayList<SpaceTimeCoordinate>();
-		BufferedReader br = new BufferedReader(new InputStreamReader(ctx.getResources().openRawResource(R.raw.gps)));
+		BufferedReader br = new BufferedReader(new InputStreamReader(ctx.getResources().openRawResource(R.raw.gpsacc)));
 		try {
 			nanosecondOffset = Long.parseLong(br.readLine().split(":",0)[0],10) - SystemClock.elapsedRealtimeNanos();
 			for(String line; (line = br.readLine()) != null; ) {

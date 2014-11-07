@@ -427,7 +427,7 @@ containing a value of this type.
         public static final int activity_main=0x7f030000;
     }
     public static final class raw {
-        public static final int gps=0x7f040000;
+        public static final int gpsacc=0x7f040000;
     }
     public static final class string {
         public static final int accel_Y=0x7f060027;
