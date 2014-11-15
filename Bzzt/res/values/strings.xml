@@ -10,5 +10,14 @@
     <string name="gps_lat">Lat:</string>
     <string name="gps_long">Long:</string>
     <string name="off">Off</string>
+    <string name="browse_dialog_title">Begin Your Journey</string>
+    <string-array name="browse_dialog_stop_items">
+        <item>Stop Ride</item>
+        <item>Add Notice</item>
+    </string-array>
+    <string-array name="browse_dialog_start_items">
+        <item >Begin Ride</item>
+        <item >Add Notice</item>
+    </string-array>
 
 </resources>

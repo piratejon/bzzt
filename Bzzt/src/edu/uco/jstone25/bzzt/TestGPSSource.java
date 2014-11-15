@@ -69,7 +69,8 @@ public class TestGPSSource {
 		ArrayList<SpaceTimeCoordinate> coords = new ArrayList<SpaceTimeCoordinate>();
 		BufferedReader br = new BufferedReader(new InputStreamReader(ctx.getResources().openRawResource(R.raw.gpsacc)));
 		try {
-			nanosecondOffset = Long.parseLong(br.readLine().split(":",0)[0],10) - SystemClock.elapsedRealtimeNanos();
+			// nanosecondOffset = Long.parseLong(br.readLine().split(":",0)[0],10) - SystemClock.elapsedRealtimeNanos();
+			nanosecondOffset = 55049104810017L - SystemClock.elapsedRealtimeNanos();
 			for(String line; (line = br.readLine()) != null; ) {
 				coords.add(new SpaceTimeCoordinate(line));
 			}

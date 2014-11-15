@@ -17,18 +17,20 @@ public class DataCollectionService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		Log.d("DCS SVC", "onStartCommand:" + ((intent == null) ? "null intent" : intent.toString()) + ";" + flags + ";" + startId + ";" + this + ";as=" + as + ";gs=" + gs);
 		return START_STICKY;
 	}
 	
 	@Override
 	public void onCreate() {
-		// TODO Auto-generated constructor stub
 		Log.d("DCS SVC", "onCreate");
+
 		try {
 			as = new AccelerometerSource(this.getApplicationContext());
 			gs = new GPSSource(this.getApplicationContext(), this);
 		} catch (IOException e) {
 			// don't start the sensors if the constructors couldn't open the output files
+			Log.e("DCS SVC", "failed to start sensors");
 			Toast.makeText(getApplicationContext(), "Unable to start service" + e.toString(), Toast.LENGTH_LONG).show();
 			stopSelf();
 			return;
@@ -36,20 +38,18 @@ public class DataCollectionService extends Service {
 		
 		as.start();
 		gs.start();
-
-		Toast.makeText(getApplicationContext(), "Seems like it started?", Toast.LENGTH_SHORT).show();
 	}
 	
 	@Override
 	public void onDestroy() {
-		Log.d("DCS SVC", "onDestroy");
-		as.stop();
-		gs.stop();
+		Log.i("DCS SVC", "onDestroy");
+		if (as != null) as.stop();
+		if (gs != null) gs.stop();
 		super.onDestroy();
 	}
 
 	public void updateCurrentLocation(Location location) {
-		Log.d("DCS", "Trying to Broadcast Location");
+		Log.d("DCS SVC", "Broadcasting location");
 		Intent i = new Intent(MainActivity.UPDATE_CURRENT_LOCATION);
 		i.putExtra("location", location);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(i);

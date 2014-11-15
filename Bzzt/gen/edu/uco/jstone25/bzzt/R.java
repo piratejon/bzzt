@@ -8,6 +8,10 @@
 package edu.uco.jstone25.bzzt;
 
 public final class R {
+    public static final class array {
+        public static final int browse_dialog_start_items=0x7f0a0001;
+        public static final int browse_dialog_stop_items=0x7f0a0000;
+    }
     public static final class attr {
         /** 
     The size of the ad. It must be one of BANNER, FULL_BANNER, LEADERBOARD,
@@ -435,6 +439,7 @@ containing a value of this type.
         public static final int accel_x=0x7f060026;
         public static final int accept=0x7f060002;
         public static final int app_name=0x7f060023;
+        public static final int browse_dialog_title=0x7f06002c;
         /**   Text for notification shown when the Android Wear apps needs to be updated. Only shown on the wearable. [CHAR LIMIT=NONE] 
          */
         public static final int common_android_wear_notification_needs_update_text=0x7f060009;
