@@ -1,5 +1,7 @@
 package edu.uco.jstone25.bzzt;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.geometry.Point;
@@ -28,6 +30,7 @@ public class AccelerationPoint implements PointQuadTree.Item, Comparable<Acceler
     	// series id, sequence number, lat, long, z-score
     	String[] parts = line.split(",");
     	setPoint(Double.parseDouble(parts[2]), Double.parseDouble(parts[3]));
+    	setLatLng(new LatLng(getPoint().x, getPoint().y));
     	setAccel(Float.parseFloat(parts[4]));
     	setSeries(Integer.parseInt(parts[0]));
 	 	setSequence(Integer.parseInt(parts[1]));

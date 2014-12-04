@@ -3,17 +3,15 @@ package edu.uco.jstone25.bzzt;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -37,8 +35,10 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.quadtree.PointQuadTree;
 
@@ -59,8 +59,26 @@ public class MainActivity extends Activity implements BrowseModeListener, Insert
 	public static final int BZZT_SERVICE_STATUS_NOTIFICATION_ID = 0;
 	
 	private DataUpdateReceiver dataUpdateReceiver;
+
+	/*
+	private String StreamSponge(InputStream is) {
+		String line;
+		StringBuilder sb = new StringBuilder();
+		BufferedReader br = new BufferedReader(new InputStreamReader(is));
+		try {
+			while((line = br.readLine()) != null) {
+				sb.append(line);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+		}
+		return sb.toString();
+	}
+	*/
 	
-	private class QueryPoints extends AsyncTask<Double, Void, HttpResponse> {
+	private class QueryPoints extends AsyncTask<Double, Void, HashMap<Integer, TreeMap<Integer, AccelerationPoint>>> {
 		
 		private QueryPointsListener<AccelerationPoint> listener;
 		
@@ -69,8 +87,9 @@ public class MainActivity extends Activity implements BrowseModeListener, Insert
 		}
 		
 		@Override
-		protected HttpResponse doInBackground(Double... params) {
+		protected HashMap<Integer, TreeMap<Integer, AccelerationPoint>> doInBackground(Double... params) {
 			URI uri;
+				/*
 			try {
 				uri = new URIBuilder()
 					.setScheme("http")
@@ -85,32 +104,42 @@ public class MainActivity extends Activity implements BrowseModeListener, Insert
 				e1.printStackTrace();
 				return null;
 			}
+					*/
+			/*
 			HttpResponse hr = null;
 			HttpClient hc = new DefaultHttpClient();
-			HttpGet hg = new HttpGet(uri);
-
+			HttpGet hg;
 			try {
-                hr = hc.execute(hg);
+				hg = new HttpGet("http://bzzt-app.com/submit?x0="
+						+ URLEncoder.encode(Double.toString(params[0]), "UTF-8") + "&y0="
+						+ URLEncoder.encode(Double.toString(params[1]), "UTF-8") + "&x1="
+						+ URLEncoder.encode(Double.toString(params[2]), "UTF-8") + "&y1="
+						+ URLEncoder.encode(Double.toString(params[3]), "UTF-8"));
+				hr = hc.execute(hg);
+			} catch (UnsupportedEncodingException e) {
+                Log.d("bzzt UEE", e.toString());
+				e.printStackTrace();
 			} catch (ClientProtocolException e) {
                 Log.d("bzzt CPE", e.toString());
-                e.printStackTrace();
+				e.printStackTrace();
 			} catch (IOException e) {
                 Log.d("bzzt IOE", e.toString());
-                e.printStackTrace();
+				e.printStackTrace();
 			}
+			
             return hr;
-		}
-		
-		@Override
-		protected void onPostExecute(HttpResponse hr) {
-			/* hr.getStatusLine(), hr.getStatusLine().getStatusCode()) */
-			// send payload to quad-tree populating function which then draws them
-			if (hr.getEntity().getContentLength() > 0) {
+            */
+			HashMap<Integer, TreeMap<Integer, AccelerationPoint>> h = new HashMap<Integer, TreeMap<Integer, AccelerationPoint>>();
+			try {
+				URL url = new URL("http://bzzt-app.com/submit?x0="
+							+ URLEncoder.encode(Double.toString(params[0]), "UTF-8") + "&y0="
+							+ URLEncoder.encode(Double.toString(params[1]), "UTF-8") + "&x1="
+							+ URLEncoder.encode(Double.toString(params[2]), "UTF-8") + "&y1="
+							+ URLEncoder.encode(Double.toString(params[3]), "UTF-8"));
+				BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+
+				String line;
 				try {
-					PointQuadTree<AccelerationPoint> apqt = new PointQuadTree<AccelerationPoint>(-90f, -180f, 90f, 180f);
-					BufferedReader br = new BufferedReader(new InputStreamReader(hr.getEntity().getContent()));
-					String line;
-					HashMap<Integer, TreeMap<Integer, AccelerationPoint>> h = new HashMap<Integer, TreeMap<Integer, AccelerationPoint>>();
 					for (line = br.readLine(); line != null; line = br.readLine()) {
 						TreeMap<Integer, AccelerationPoint> sequence;
 						AccelerationPoint ap = new AccelerationPoint(line);
@@ -121,22 +150,38 @@ public class MainActivity extends Activity implements BrowseModeListener, Insert
 							sequence = h.get(ap.getSeries());
 						}
 						sequence.put(ap.getSequence(), ap);
-						apqt.add(ap);
 					}
-					
-					listener.setPointTree(apqt);
-					listener.setSeriesMap(h);
-				} catch (IllegalStateException e) {
-					e.printStackTrace();
 				} catch (IOException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+			
+			return h;
+		}
+
+		
+		@Override
+		protected void onPostExecute(HashMap<Integer, TreeMap<Integer, AccelerationPoint>> hm) {
+			/* hr.getStatusLine(), hr.getStatusLine().getStatusCode()) */
+			// send payload to quad-tree populating function which then draws them
+			listener.setSeriesMap(hm);
+			// PointQuadTree<AccelerationPoint> apqt = new PointQuadTree<AccelerationPoint>(-90f, -180f, 90f, 180f);
+
+			// listener.setPointTree(apqt);
 		}
 	}
 	
 	private PointQuadTree<AccelerationPoint> pqt;
 	private HashMap<Integer, TreeMap<Integer, AccelerationPoint>> series;
+	private List<Polyline> lines;
 	
 	private GoogleMap map;
 	private Location location;
@@ -316,8 +361,24 @@ public class MainActivity extends Activity implements BrowseModeListener, Insert
 			registerForLocationUpdates();
 		} else {
 			setCurrentMapLocation(17);
-			queryLocalPoints();
+			map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+				@Override
+				public void onMapLoaded() {
+					queryLocalPoints();
+				}
+			});
+			
+			map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+				@Override
+				public void onCameraChange(CameraPosition arg0) {
+					if (!isMyServiceRunning(myServiceClass)) {
+						queryLocalPoints();
+					}
+				}
+			});
 		}
+		
+		lines = new ArrayList<Polyline>();
 	}
 	
 	private void queryLocalPoints() {
@@ -380,9 +441,6 @@ public class MainActivity extends Activity implements BrowseModeListener, Insert
 			break;
 
 		case 1:
-			// Toast.makeText(getApplicationContext(), "warm fuzzies", Toast.LENGTH_SHORT).show();
-			// toss up a fragment for dis shit
-			// Toast.makeText(getApplicationContext(), "lol", Toast.LENGTH_SHORT).show();
 			launchInsertObstacleFragment(location);
 			break;
 
@@ -430,29 +488,50 @@ public class MainActivity extends Activity implements BrowseModeListener, Insert
 		}
 	}
 	
+	void removeOldLines(List<Polyline> ls) {
+		for(Polyline p : ls) {
+			p.remove();
+		}
+	}
+	
 	void renderSeries(HashMap<Integer, TreeMap<Integer, AccelerationPoint>> h) {
-		AccelerationPoint a0 = null;
+		Log.d("bzzt", "renderSeries");
+		AccelerationPoint a0 = null, a1;
+		removeOldLines(lines);
 		for (TreeMap<Integer, AccelerationPoint> sequence : h.values()) {
 			for (int i : sequence.keySet()) { // TreeMap presents ascending-sorted keyset
-				AccelerationPoint a = sequence.get(i);
+				a1 = sequence.get(i);
 
-				if (a0 != null) {
-					map.addPolyline((new PolylineOptions()).add(a0.getLatLng(), a.getLatLng()).width(5).color(Color.BLUE));
+				if (a0 != null && a0.getSequence() == a1.getSequence() - 1) {
+					PolylineOptions po = new PolylineOptions();
+					po.add(a0.getLatLng(), a1.getLatLng()).width(5);
+					
+					if (Math.abs(a1.getAccel()) <= 1.0) {
+						po.color(Color.GREEN);
+					} else if (Math.abs(a1.getAccel()) <= 2.0) {
+						po.color(Color.YELLOW);
+					} else {
+						po.color(Color.RED);
+					}
+
+					lines.add(map.addPolyline(po));
 				}
 
-				a0 = a;
+				a0 = a1;
 			}
 		}
 	}
 
 	@Override
 	public void setPointTree(PointQuadTree<AccelerationPoint> p) {
+		Log.d("bzzt", "setPointTree");
 		pqt = p;
 	}
 
 	@Override
 	public void setSeriesMap(
 			HashMap<Integer, TreeMap<Integer, AccelerationPoint>> h) {
+		Log.d("bzzt", "setSeriesMap");
 		series = h;
 		renderSeries(series);
 	}
