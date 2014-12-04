@@ -19,6 +19,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.IBinder;
@@ -98,13 +99,13 @@ public class DataCollectionService extends Service {
 	private void setupNotification() {
 		nbServiceStatus = new Notification.Builder(this)
 			.setTicker("Bzzt capture service started.")
-			.setSmallIcon(R.drawable.ic_launcher)
+			.setSmallIcon(R.drawable.bzztlogo)
 			.setContentTitle("Bzzt! Capturing In Progress")
 			.setContentText("Ride beginning")
 			.setOngoing(true)
 			.setUsesChronometer(true)
 			.setAutoCancel(false)
-			// .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.uco))
+			.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.bzztlogo))
 			.setContentIntent(
 				PendingIntent.getActivity(
 					this, 0,
@@ -122,7 +123,7 @@ public class DataCollectionService extends Service {
 
 		Notification.Builder nbServiceStatus = new Notification.Builder(getApplicationContext())
 			.setTicker("Bzzt capture service stopped.")
-			.setSmallIcon(R.drawable.ic_launcher)
+			.setSmallIcon(R.drawable.bzztlogo)
 			.setAutoCancel(false)
 			.setContentIntent(null);
 

@@ -8,13 +8,15 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.widget.EditText;
 
 public class InsertNoticeDialogFragment extends DialogFragment {
 	
+	private EditText et;
 	private LatLng location;
 	
 	public interface InsertNoticeListener {
-		public void onInsertNoticeInsert(LatLng loc, String title, String message, DialogFragment df);
+		public void onInsertNoticeInsert(LatLng loc, String message, DialogFragment df);
 	}
 	
 	InsertNoticeListener listener;
@@ -27,6 +29,7 @@ public class InsertNoticeDialogFragment extends DialogFragment {
 		
 		isServiceRunning = getArguments().getBoolean(MainActivity.BZZT_IS_SERVICE_RUNNING);
 		location = getArguments().getParcelable(MainActivity.BROWSE_LONGTOUCH_LOCATION);
+		et = new EditText(getActivity());
 	}
 
 	@Override
@@ -44,17 +47,18 @@ public class InsertNoticeDialogFragment extends DialogFragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
 			.setTitle(R.string.browse_dialog_title)
 			.setMessage("Add alert at " + location.toString() + "?")
+			.setView(et)
 			.setPositiveButton("Ok",
 					new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					listener.onInsertNoticeInsert(location, "", "", InsertNoticeDialogFragment.this);
+					listener.onInsertNoticeInsert(location,  et.getText().toString(), InsertNoticeDialogFragment.this);
 				}
 			})
 			.setNegativeButton("no", new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					listener.onInsertNoticeInsert(null, "", "", InsertNoticeDialogFragment.this);
+					listener.onInsertNoticeInsert(null, "", InsertNoticeDialogFragment.this);
 				}
 			});
 		return builder.create();

@@ -13,6 +13,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
@@ -44,8 +55,9 @@ import com.google.maps.android.quadtree.PointQuadTree;
 
 import edu.uco.jstone25.bzzt.BrowseModeDialogFragment.BrowseModeListener;
 import edu.uco.jstone25.bzzt.InsertNoticeDialogFragment.InsertNoticeListener;
+import edu.uco.jstone25.bzzt.Notice.QueryNoticesListener;
 
-public class MainActivity extends Activity implements BrowseModeListener, InsertNoticeListener, QueryPointsListener<AccelerationPoint> {
+public class MainActivity extends Activity implements BrowseModeListener, InsertNoticeListener, QueryPointsListener<AccelerationPoint>, QueryNoticesListener {
 	
 	public static final String GET_CURRENT_LOCATION = "uco.edu.jstone25.bzzt.MainActivity.GET_CURRENT_LOCATION";
 	public static final String UPDATE_CURRENT_LOCATION = "uco.edu.jstone25.bzzt.MainActivity.UPDATE_CURRENT_LOCATION";
@@ -60,24 +72,6 @@ public class MainActivity extends Activity implements BrowseModeListener, Insert
 	
 	private DataUpdateReceiver dataUpdateReceiver;
 
-	/*
-	private String StreamSponge(InputStream is) {
-		String line;
-		StringBuilder sb = new StringBuilder();
-		BufferedReader br = new BufferedReader(new InputStreamReader(is));
-		try {
-			while((line = br.readLine()) != null) {
-				sb.append(line);
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-		}
-		return sb.toString();
-	}
-	*/
-	
 	private class QueryPoints extends AsyncTask<Double, Void, HashMap<Integer, TreeMap<Integer, AccelerationPoint>>> {
 		
 		private QueryPointsListener<AccelerationPoint> listener;
@@ -88,50 +82,10 @@ public class MainActivity extends Activity implements BrowseModeListener, Insert
 		
 		@Override
 		protected HashMap<Integer, TreeMap<Integer, AccelerationPoint>> doInBackground(Double... params) {
-			URI uri;
-				/*
-			try {
-				uri = new URIBuilder()
-					.setScheme("http")
-					.setHost("www.bzzt-app.com")
-					.setPath("/submit")
-					.setParameter("x0", Double.toString(params[0]))
-					.setParameter("y0", Double.toString(params[1]))
-					.setParameter("x1", Double.toString(params[2]))
-					.setParameter("y1", Double.toString(params[3]))
-					.build();
-			} catch (URISyntaxException e1) {
-				e1.printStackTrace();
-				return null;
-			}
-					*/
-			/*
-			HttpResponse hr = null;
-			HttpClient hc = new DefaultHttpClient();
-			HttpGet hg;
-			try {
-				hg = new HttpGet("http://bzzt-app.com/submit?x0="
-						+ URLEncoder.encode(Double.toString(params[0]), "UTF-8") + "&y0="
-						+ URLEncoder.encode(Double.toString(params[1]), "UTF-8") + "&x1="
-						+ URLEncoder.encode(Double.toString(params[2]), "UTF-8") + "&y1="
-						+ URLEncoder.encode(Double.toString(params[3]), "UTF-8"));
-				hr = hc.execute(hg);
-			} catch (UnsupportedEncodingException e) {
-                Log.d("bzzt UEE", e.toString());
-				e.printStackTrace();
-			} catch (ClientProtocolException e) {
-                Log.d("bzzt CPE", e.toString());
-				e.printStackTrace();
-			} catch (IOException e) {
-                Log.d("bzzt IOE", e.toString());
-				e.printStackTrace();
-			}
-			
-            return hr;
-            */
+
 			HashMap<Integer, TreeMap<Integer, AccelerationPoint>> h = new HashMap<Integer, TreeMap<Integer, AccelerationPoint>>();
 			try {
-				URL url = new URL("http://bzzt-app.com/submit?x0="
+				URL url = new URL("http://bzzt-app.com/submit?want=points&x0="
 							+ URLEncoder.encode(Double.toString(params[0]), "UTF-8") + "&y0="
 							+ URLEncoder.encode(Double.toString(params[1]), "UTF-8") + "&x1="
 							+ URLEncoder.encode(Double.toString(params[2]), "UTF-8") + "&y1="
@@ -167,21 +121,62 @@ public class MainActivity extends Activity implements BrowseModeListener, Insert
 			return h;
 		}
 
-		
 		@Override
 		protected void onPostExecute(HashMap<Integer, TreeMap<Integer, AccelerationPoint>> hm) {
 			/* hr.getStatusLine(), hr.getStatusLine().getStatusCode()) */
-			// send payload to quad-tree populating function which then draws them
 			listener.setSeriesMap(hm);
-			// PointQuadTree<AccelerationPoint> apqt = new PointQuadTree<AccelerationPoint>(-90f, -180f, 90f, 180f);
-
-			// listener.setPointTree(apqt);
 		}
 	}
 	
+	private class QueryNotices extends AsyncTask<Double, Void, List<Notice>> {
+		
+		private QueryNoticesListener listener;
+		
+		public QueryNotices(QueryNoticesListener l) {
+			listener = l;
+		}
+		
+		@Override
+		protected List<Notice> doInBackground(Double... params) {
+			List<Notice> nl = new ArrayList<Notice>();
+
+			try {
+				URL url = new URL("http://bzzt-app.com/submit?want=notices&x0="
+							+ URLEncoder.encode(Double.toString(params[0]), "UTF-8") + "&y0="
+							+ URLEncoder.encode(Double.toString(params[1]), "UTF-8") + "&x1="
+							+ URLEncoder.encode(Double.toString(params[2]), "UTF-8") + "&y1="
+							+ URLEncoder.encode(Double.toString(params[3]), "UTF-8"));
+				BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+
+				String line;
+				try {
+					for (line = br.readLine(); line != null; line = br.readLine()) {
+						nl.add(new Notice(line));
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			return nl;
+		}
+
+		@Override
+		protected void onPostExecute(List<Notice> nl) {
+			listener.setNoticeList(nl);
+		}
+	}
+
 	private PointQuadTree<AccelerationPoint> pqt;
 	private HashMap<Integer, TreeMap<Integer, AccelerationPoint>> series;
 	private List<Polyline> lines;
+	private List<Notice> notices;
 	
 	private GoogleMap map;
 	private Location location;
@@ -365,6 +360,7 @@ public class MainActivity extends Activity implements BrowseModeListener, Insert
 				@Override
 				public void onMapLoaded() {
 					queryLocalPoints();
+					queryLocalNotices();
 				}
 			});
 			
@@ -373,12 +369,31 @@ public class MainActivity extends Activity implements BrowseModeListener, Insert
 				public void onCameraChange(CameraPosition arg0) {
 					if (!isMyServiceRunning(myServiceClass)) {
 						queryLocalPoints();
+						queryLocalNotices();
+					}
+				}
+			});
+			
+			map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+				
+				@Override
+				public void onMapClick(LatLng arg0) {
+					// did we touch a circle?
+					for(Notice n : notices) {
+						if (n.getCircle() != null) {
+							float results[] = new float[3];
+							Location.distanceBetween(n.getLocation().latitude, n.getLocation().longitude, arg0.latitude, arg0.longitude, results);
+							if (results[0] <= n.getCircle().getRadius()) {
+								Toast.makeText(getApplicationContext(), n.getMessage(), Toast.LENGTH_LONG).show();
+							}
+						}
 					}
 				}
 			});
 		}
 		
 		lines = new ArrayList<Polyline>();
+		notices = new ArrayList<Notice>();
 	}
 	
 	private void queryLocalPoints() {
@@ -391,6 +406,16 @@ public class MainActivity extends Activity implements BrowseModeListener, Insert
 		// calls thing that draws points when finished
 	}
 	
+	private void queryLocalNotices() {
+		double x0, y0, x1, y1;
+		x0 = map.getProjection().getVisibleRegion().latLngBounds.southwest.latitude;
+		y0 = map.getProjection().getVisibleRegion().latLngBounds.southwest.longitude;
+		x1 = map.getProjection().getVisibleRegion().latLngBounds.northeast.latitude;
+		y1 = map.getProjection().getVisibleRegion().latLngBounds.northeast.longitude;
+		new QueryNotices(this).execute(x0, y0, x1, y1);
+		// calls thing that draws points when finished
+	}
+
 	@Override
 	public void onNewIntent(Intent intent) {
 		if (intent != null) {
@@ -478,13 +503,64 @@ public class MainActivity extends Activity implements BrowseModeListener, Insert
 			Log.d("DUR", "constructor" + this.toString());
 		}
 	}
+	
+	private void uploadMessage(LatLng loc, String message) {
+		class UploadFile extends AsyncTask<String, Void, HttpResponse> {
+		
+			@Override
+			protected HttpResponse doInBackground(String... params) {
+				HttpResponse hr = null;
+				HttpClient hc = new DefaultHttpClient();
+				HttpPost hp = new HttpPost("http://bzzt-app.com/submit");
+				MultipartEntityBuilder mpe = MultipartEntityBuilder.create();
+				mpe.setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+				    .addTextBody("message", params[0])
+				    .addTextBody("latitude", params[1])
+				    .addTextBody("longitude", params[2]);
+				hp.setEntity(mpe.build());
+
+				try {
+	                hr = hc.execute(hp);
+				} catch (ClientProtocolException e) {
+	                Log.d("bzzt CPE", e.toString());
+	                e.printStackTrace();
+				} catch (IOException e) {
+	                Log.d("bzzt IOE", e.toString());
+	                e.printStackTrace();
+				}
+	            return hr;
+			}
+		
+			@Override
+			protected void onPostExecute(HttpResponse hr) {
+				int http_status_code = hr.getStatusLine().getStatusCode();
+
+            	if (http_status_code >= 200 && http_status_code < 400) {
+            		Toast.makeText(getApplicationContext(), "Notice upload successful", Toast.LENGTH_SHORT).show();
+            	} else {
+            		Toast.makeText(getApplicationContext(), "Upload failed: " + hr.getStatusLine(), Toast.LENGTH_LONG).show();
+            	}
+			}
+		}
+		
+		try {
+			new UploadFile().execute(
+					URLEncoder.encode(message, "UTF-8"),
+					URLEncoder.encode(Double.toString(loc.latitude), "UTF-8"),
+					URLEncoder.encode(Double.toString(loc.longitude), "UTF-8")
+					);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	@Override
-	public void onInsertNoticeInsert(LatLng loc, String title, String message,
-			DialogFragment df) {
+	public void onInsertNoticeInsert(LatLng loc, String message, DialogFragment df) {
 		if (loc != null) {
 			// Toast.makeText(getApplicationContext(), "Adding notice at " + loc, Toast.LENGTH_SHORT).show();
 			map.addCircle(new CircleOptions().center(loc).radius(5).fillColor(Color.RED).strokeColor(Color.BLACK));
+			uploadMessage(loc, message);
 		}
 	}
 	
@@ -534,5 +610,24 @@ public class MainActivity extends Activity implements BrowseModeListener, Insert
 		Log.d("bzzt", "setSeriesMap");
 		series = h;
 		renderSeries(series);
+	}
+	
+	private void removeOldNotices(List<Notice> l) {
+		for(Notice n : l) {
+			if (n.getCircle() != null) n.getCircle().remove();
+		}
+	}
+	
+	private void renderNotices(List<Notice> l) {
+		removeOldNotices(notices);
+		for(Notice n : l) {
+			n.setCircle(map.addCircle(new CircleOptions().center(n.getLocation()).radius(5).fillColor(Color.RED).strokeColor(Color.BLACK)));
+		}
+		notices = l;
+	}
+
+	@Override
+	public void setNoticeList(List<Notice> l) {
+		renderNotices(l);
 	}
 }
