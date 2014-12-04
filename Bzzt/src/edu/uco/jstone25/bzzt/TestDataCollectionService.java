@@ -43,7 +43,7 @@ public class TestDataCollectionService extends DataCollectionService {
 	}
 
 	public void updateCurrentLocation(Location location) {
-		Log.i("DCS SVC", "Broadcasting location");
+		Log.i("DCS SVC", "Broadcasting location: " + location.toString());
 		Intent i = new Intent(MainActivity.UPDATE_CURRENT_LOCATION);
 		i.putExtra("location", location);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(i);

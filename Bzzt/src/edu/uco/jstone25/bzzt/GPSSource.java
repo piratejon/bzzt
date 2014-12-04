@@ -39,28 +39,26 @@ public class GPSSource implements LocationListener {
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void start() {
-		mLocationManager.requestLocationUpdates(provider, 400, 1, this);
+		mLocationManager.requestLocationUpdates(provider, 400, 1, GPSSource.this);
 	}
 	
 	public void stop() {
-		mLocationManager.removeUpdates(this);
+		mLocationManager.removeUpdates(GPSSource.this);
 		lf.close();
+	}
+	
+	public String getLogFilePath() {
+		return lf.getCanonicalPath();
 	}
 }

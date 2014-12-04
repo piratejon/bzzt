@@ -1,27 +1,29 @@
 package edu.uco.jstone25.bzzt;
 
-import java.io.BufferedWriter;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.util.zip.GZIPOutputStream;
 
 import android.content.Context;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.util.Log;
 
 public class LogFile {
 	
-	PrintWriter pw;
+	GZIPOutputStream zos;
+	File f;
 
 	public void appendFile(String s) throws IOException {
-		pw.print(SystemClock.elapsedRealtimeNanos() + ":" + s + "\n");
+		String s2 = SystemClock.elapsedRealtimeNanos() + "," + s + "\n";
+		zos.write(s2.getBytes());
 	}
 	
 	public void openOutputFile(File directory, String prefix) throws IOException {
-		File f = new File(directory, prefix + System.currentTimeMillis() + ".txt");
-		pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f))));
+		f = new File(directory, prefix + System.currentTimeMillis() + ".txt.gz");
+		zos = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(f)));
 		appendFile("start stamp (ns)");
 	}
 	
@@ -30,7 +32,20 @@ public class LogFile {
 	}
 	
 	public void close() {
-		pw.flush();
-		pw.close();
+		try {
+			zos.flush();
+			zos.close();
+		} catch (IOException e) {
+			Log.d("BzztLogFileException", e.toString());
+			e.printStackTrace();
+		}
+	}
+	
+	public String getCanonicalPath() {
+		try {
+			return f.getCanonicalPath();
+		} catch (IOException e) {
+			return f.getAbsolutePath();
+		}
 	}
 }

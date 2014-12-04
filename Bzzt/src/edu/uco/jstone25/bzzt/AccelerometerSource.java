@@ -45,4 +45,8 @@ public class AccelerometerSource implements SensorEventListener {
 		mSensorManager.unregisterListener(this, mAccelerometer);
 		lf.close();
 	}
+	
+	public String getLogFilePath() {
+		return lf.getCanonicalPath();
+	}
 }
